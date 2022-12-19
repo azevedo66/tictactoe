@@ -294,114 +294,66 @@ var drawGrid = function() {
 var checkForWin = function() {
     if (win === false) {
         if (cell[0] === "X" && cell[1] === "X" && cell[2] === "X") {
-            textSize(20);
-            fill(255, 0, 0);
-            text("X Wins", 165, 40);
             winner = "X";
             xWins++;
             win = true;
         } else if (cell[0] === "X" && cell[4] === "X" && cell[8] === "X") {
-            textSize(20);
-            fill(255, 0, 0);
-            text("X Wins", 165, 40);
             winner = "X";
             xWins++;
             win = true;
         } else if (cell[0] === "X" && cell[3] === "X" && cell[6] === "X") {
-            textSize(20);
-            fill(255, 0, 0);
-            text("X Wins", 165, 40);
             winner = "X";
             xWins++;
             win = true;
         } else if (cell[1] === "X" && cell[4] === "X" && cell[7] === "X") {
-            textSize(20);
-            fill(255, 0, 0);
-            text("X Wins", 165, 40);
             winner = "X";
             xWins++;
             win = true;
         } else if (cell[2] === "X" && cell[4] === "X" && cell[6] === "X") {
-            textSize(20);
-            fill(255, 0, 0);
-            text("X Wins", 165, 40);
             winner = "X";
             xWins++;
             win = true;
         } else if (cell[2] === "X" && cell[5] === "X" && cell[8] === "X") {
-            textSize(20);
-            fill(255, 0, 0);
-            text("X Wins", 165, 40);
             winner = "X";
             xWins++;
             win = true;
         } else if (cell[3] === "X" && cell[4] === "X" && cell[5] === "X") {
-            textSize(20);
-            fill(255, 0, 0);
-            text("X Wins", 165, 40);
             winner = "X";
             xWins++;
             win = true;
         } else if (cell[6] === "X" && cell[7] === "X" && cell[8] === "X") {
-            textSize(20);
-            fill(255, 0, 0);
-            text("X Wins", 165, 40);
             winner = "X";
             xWins++;
             win = true;
         } else if (cell[0] === "O" && cell[1] === "O" && cell[2] === "O") {
-            textSize(20);
-            fill(255, 0, 0);
-            text("O Wins", 165, 40);
             winner = "O";
             oWins++;
             win = true;
         } else if (cell[0] === "O" && cell[4] === "O" && cell[8] === "O") {
-            textSize(20);
-            fill(255, 0, 0);
-            text("O Wins", 165, 40);
             winner = "O";
             oWins++;
             win = true;
         } else if (cell[0] === "O" && cell[3] === "O" && cell[6] === "O") {
-            textSize(20);
-            fill(255, 0, 0);
-            text("O Wins", 165, 40);
             winner = "O";
             oWins++;
             win = true;
         } else if (cell[1] === "O" && cell[4] === "O" && cell[7] === "O") {
-            textSize(20);
-            fill(255, 0, 0);
-            text("O Wins", 165, 40);
             winner = "O";
             oWins++;
             win = true;
         } else if (cell[2] === "O" && cell[4] === "O" && cell[6] === "O") {
-            textSize(20);
-            fill(255, 0, 0);
-            text("O Wins", 165, 40);
             winner = "O";
             oWins++;
             win = true;
         } else if (cell[2] === "O" && cell[5] === "O" && cell[8] === "O") {
-            textSize(20);
-            fill(255, 0, 0);
-            text("O Wins", 165, 40);
             winner = "O";
             oWins++;
             win = true;
         } else if (cell[3] === "O" && cell[4] === "O" && cell[5] === "O") {
-            textSize(20);
-            fill(255, 0, 0);
-            text("O Wins", 165, 40);
             winner = "O";
             oWins++;
             win = true;
         } else if (cell[6] === "O" && cell[7] === "O" && cell[8] === "O") {
-            textSize(20);
-            fill(255, 0, 0);
-            text("O Wins", 165, 40);
             winner = "O";
             oWins++;
             win = true;
@@ -598,6 +550,7 @@ var playCpuHard = function(index) {
                 symbolColor[5] = cpuColor;
                 numTurns++;
         } else {
+            checkForWin();
             var cpuRandom = floor(random(0, 9));
             if (win === false && numTurns < 9) {
                 if (selected[cpuRandom] === true) {
