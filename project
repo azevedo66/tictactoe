@@ -234,6 +234,19 @@ var darkBtn = new Button({
         gridColor = color(255, 255, 255);
     }
 });
+
+var winResetBtn = new Button({
+    x: 170,
+    y: 0,
+    width: 60,
+    height: 40, 
+    label: "Score", 
+    onClick: function() {
+        xWins = 0;
+        oWins = 0;
+    }
+});
+
 var Grid = [
     {xp: 65, yp: 130},
     {xp: 165, yp: 130},
@@ -468,6 +481,8 @@ var playCpuEasy = function(index) {
 
 //play hard cpu function
 var playCpuHard = function(index) {
+    checkForWin();
+    checkForReset();
     if (selected[index] === false && win === false) {
         numTurns++;
         cell[index] = userSymbol;
@@ -632,6 +647,7 @@ var startScene = function() {
     hardBtn.draw();
     lightBtn.draw();
     darkBtn.draw();
+    winResetBtn.draw();
 };
 
 //2 player game scene
@@ -657,6 +673,7 @@ mouseClicked = function() {
     hardBtn.handleMouseClick();
     lightBtn.handleMouseClick();
     darkBtn.handleMouseClick();
+    winResetBtn.handleMouseClick();
     checkForReset();
     checkForWin();
     if (currentScene === 1) {
