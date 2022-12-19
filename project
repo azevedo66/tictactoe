@@ -1,0 +1,729 @@
+//draw bitmoji function
+var drawBitmoji = function (x, y, s)
+{
+var drawBody = function(x,y,s)
+{
+noStroke();
+//arms
+fill(252, 223, 166);
+rect(x-(s/100*54), y+(s/100*25), s/100*15, s/100*50);
+rect(x+(s/100*49), y+(s/100*25), s/100*15, s/100*50);
+//sleve
+fill(176, 176, 176);
+quad(x-(s/100*60), y+(s/100*25), x-(s/100*40), y+(s/100*1), x+(s/100*50), y, x+(s/100*70), y+(s/100*25));
+// shirt
+rect(x-(s/100*35), y+(s/100*1), s/100*80, s/100*75);
+fill(255, 255, 255);
+triangle(x-(s/100*30), y+(s/100*20), x-(s/100*15), y+(s/100*20), x-(s/100*23), y+(s/100*10));
+fill(255, 0, 0);
+textSize(s/100*20);
+text("AA", x-(s/100*8), y+(s/100*50));
+};
+
+var drawHead = function(x, y, s)
+{
+noStroke();
+//hair
+fill(48, 48, 48);
+quad(x-(s/100*27), y-(s/100*45), x+(s/100*1), y-(s/100*50), x+(s/100*10), y-(s/100*30), x-(s/100*30), y-(s/100*19));
+quad(x+(s/100*44), y-(s/100*22), x+(s/100*38), y-(s/100*18), x-(s/100*12), y-(s/100*52), x+(s/100*37), y-(s/100*46));
+//ears
+fill(252, 223, 166);
+ellipse(x-(s/100*20), y-(s/100*35), s/100*10, s/100*10);
+ellipse(x+(s/100*30), y-(s/100*35), s/100*10, s/100*10);
+//head
+fill(252, 223, 166);
+rect(x-(s/100*7), y-(s/100*10), s/100*25, s/100*10);
+ellipse(x+(s/100*5), y-(s/100*35), s/100*50, s/100*55);
+//eyes
+stroke(0, 0, 0);
+fill(255, 255, 255);
+ellipse(x-(s/100*5), y-(s/100*40), s/100*7, s/100*7);
+ellipse(x+(s/100*15), y-(s/100*40), s/100*7, s/100*7);
+fill(128, 84, 40);
+ellipse(x-(s/100*5), y-(s/100*40), s/100*2, s/100*2);
+ellipse(x+(s/100*15), y-(s/100*40), s/100*2, s/100*2);
+//mouth
+fill(255, 255, 255);
+arc(x+(s/100*5), y-(s/100*20), s/100*20, s/100*10, 0, 180);
+line(x-(s/100*5), y-(s/100*20), x+(s/100*15), y-(s/100*20));
+//nose
+fill(252, 223, 166);
+arc(x+(s/100*5), y-(s/100*30), s/100*10, s/100*7, -100, 85);
+//hat
+fill(122, 122, 122);
+arc(x+(s/100*5), y-(s/100*47), s/100*45, s/100*45, 180, 360);
+stroke(0, 0, 0);
+strokeWeight(1);
+line(x-(s/100*17), y-(s/100*47), x+(s/100*40), y-(s/100*47));
+};
+drawBody(x, y, s);
+drawHead(x, y, s);
+};
+
+//global variables
+var turn = "X";
+var userSymbol = "X";
+var numTurns = 0;
+var xWins = 0;
+var oWins = 0;
+var mode = "Easy";
+var win = false;
+var winner = "";
+var reset = false;
+var s = false;
+var c = color(255, 0, 0);
+var userColor = color(255, 0, 0);
+var cpuColor = color(0, 0, 255);
+var bg = color(191, 191, 191);
+var txtColor = color(0, 0, 0);
+var gridColor = color(0, 0, 0);
+var currentScene = 1;
+
+//arrays
+var cell = ["", "", "", "", "", "", "", "", ""];
+var selected = [s, s, s, s, s, s, s, s, s];
+var symbolColor = [c, c, c, c, c, c, c, c, c];
+
+//button class from Khan Academy
+var Button = function(config) {
+    this.x = config.x || 0;
+    this.y = config.y || 0;
+    this.width = config.width || 150;
+    this.height = config.height || 50;
+    this.label = config.label || "Click";
+    this.onClick = config.onClick || function() {};
+};
+
+Button.prototype.draw = function() {
+    fill(255, 0, 0);
+    rect(this.x, this.y, this.width, this.height, 5);
+    fill(0, 0, 0);
+    textSize(19);
+    text(this.label, this.x+10, this.y+this.height/2);
+};
+
+Button.prototype.isMouseInside = function() {
+    return mouseX > this.x &&
+           mouseX < (this.x + this.width) &&
+           mouseY > this.y &&
+           mouseY < (this.y + this.height);
+};
+
+Button.prototype.handleMouseClick = function() {
+    if (this.isMouseInside()) {
+        this.onClick();
+    }
+};
+
+//buttons
+var playersBtn = new Button({
+    x: 300,
+    y: 0,
+    width: 100,
+    height: 40,
+    label: "2 Players",
+    onClick: function() {
+        currentScene = 2;
+        reset = true;
+    }
+}); //2 player button
+
+var cpuBtn = new Button({
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 40,
+    label: "1 Player",
+    onClick: function() {
+        currentScene = 3;
+        reset = true;
+    }
+}); //1 player button
+
+var resetBtn = new Button({
+    x: 330, 
+    y: 360,
+    label: "Reset",
+    onClick: function() {
+        reset = true;
+    }
+}); //reset button
+
+var backBtn = new Button({
+    x:0,
+    y: 360,
+    width: 75,
+    label: "Back",
+    onClick: function() {
+        currentScene = 1;
+        reset = true;
+    }
+}); //back button
+
+var xSelectBtn = new Button({
+    x: 77, 
+    y: 360,
+    width: 60,
+    label: "X",
+    onClick: function() {
+        reset = true;
+        userSymbol = "X";
+        userColor = color(255, 0, 0);
+    }
+}); //select X button
+
+var oSelectBtn = new Button({
+    x: 141,
+    y: 360, 
+    width: 60,
+    label: "O",
+    onClick: function() {
+        reset = true;
+        userSymbol = "O";
+        userColor = color(0, 0, 255);
+    }
+}); //select O button
+
+var easyBtn = new Button({
+    x: 204, 
+    y: 360,
+    width: 60,
+    label: "Easy",
+    onClick: function() {
+        mode = "Easy";
+        currentScene = 3;
+        reset = true;
+    }
+});
+
+var hardBtn = new Button({
+    x: 267, 
+    y: 360,
+    width: 60,
+    label: "Hard",
+    onClick: function() {
+        mode = "Hard";
+        currentScene = 4;
+        reset = true;
+    }
+});
+
+var lightBtn = new Button({
+    x: 105,
+    y: 0, 
+    width: 60, 
+    height: 40,
+    label: "Light",
+    onClick: function() {
+        bg = color(191, 191, 191);
+        txtColor = color(0, 0, 0);
+        gridColor = color(0, 0, 0);
+    }
+});
+
+var darkBtn = new Button({
+    x: 235, 
+    y: 0,
+    width: 60,
+    height: 40, 
+    label: "Dark",
+    onClick: function() {
+        bg = color(66, 66, 66);
+        txtColor = color(255, 0, 0);
+        gridColor = color(255, 255, 255);
+    }
+});
+var Grid = [
+    {xp: 65, yp: 130},
+    {xp: 165, yp: 130},
+    {xp: 265, yp: 130},
+    {xp: 65, yp: 235},
+    {xp: 165, yp: 235},
+    {xp: 265, yp: 235},
+    {xp: 65, yp: 340},
+    {xp: 165, yp: 340},
+    {xp: 265, yp: 340},
+]; //cordinates on grid for symbols
+
+//draw symbol function draws symbol at given coordinates
+var drawSymbol = function(index) {
+    var pos = Grid[index];
+    textSize(100);
+    fill(symbolColor[index]);
+    text(cell[index], pos.xp, pos.yp);
+};
+
+//draw grid functions draws the grid
+var drawGrid = function() {
+    background(color(bg));
+    textSize(20);
+    fill(txtColor);
+    text("X Wins: " + xWins, 20, 20);
+    text("O Wins: " + oWins, 290, 20);
+    text("Difficulty: " + mode, 135, 20);
+    text("User Symbol: " + userSymbol, 135, 390);
+    resetBtn.draw();
+    backBtn.draw();
+    drawBitmoji(22, 330, 35);
+    strokeWeight(3);
+    stroke(gridColor);
+    line(150, 50, 150, 350); //vertical lines
+    line(250, 50, 250, 350);
+    line(50, 150, 350, 150); //horizontal lines
+    line(50, 250, 350, 250);
+    for (var i = 0; i < 9; i++) {
+        drawSymbol(i);
+    }
+};
+
+//check for win function checks if either side won
+var checkForWin = function() {
+    if (win === false) {
+        if (cell[0] === "X" && cell[1] === "X" && cell[2] === "X") {
+            textSize(20);
+            fill(255, 0, 0);
+            text("X Wins", 165, 40);
+            winner = "X";
+            xWins++;
+            win = true;
+        } else if (cell[0] === "X" && cell[4] === "X" && cell[8] === "X") {
+            textSize(20);
+            fill(255, 0, 0);
+            text("X Wins", 165, 40);
+            winner = "X";
+            xWins++;
+            win = true;
+        } else if (cell[0] === "X" && cell[3] === "X" && cell[6] === "X") {
+            textSize(20);
+            fill(255, 0, 0);
+            text("X Wins", 165, 40);
+            winner = "X";
+            xWins++;
+            win = true;
+        } else if (cell[1] === "X" && cell[4] === "X" && cell[7] === "X") {
+            textSize(20);
+            fill(255, 0, 0);
+            text("X Wins", 165, 40);
+            winner = "X";
+            xWins++;
+            win = true;
+        } else if (cell[2] === "X" && cell[4] === "X" && cell[6] === "X") {
+            textSize(20);
+            fill(255, 0, 0);
+            text("X Wins", 165, 40);
+            winner = "X";
+            xWins++;
+            win = true;
+        } else if (cell[2] === "X" && cell[5] === "X" && cell[8] === "X") {
+            textSize(20);
+            fill(255, 0, 0);
+            text("X Wins", 165, 40);
+            winner = "X";
+            xWins++;
+            win = true;
+        } else if (cell[3] === "X" && cell[4] === "X" && cell[5] === "X") {
+            textSize(20);
+            fill(255, 0, 0);
+            text("X Wins", 165, 40);
+            winner = "X";
+            xWins++;
+            win = true;
+        } else if (cell[6] === "X" && cell[7] === "X" && cell[8] === "X") {
+            textSize(20);
+            fill(255, 0, 0);
+            text("X Wins", 165, 40);
+            winner = "X";
+            xWins++;
+            win = true;
+        } else if (cell[0] === "O" && cell[1] === "O" && cell[2] === "O") {
+            textSize(20);
+            fill(255, 0, 0);
+            text("O Wins", 165, 40);
+            winner = "O";
+            oWins++;
+            win = true;
+        } else if (cell[0] === "O" && cell[4] === "O" && cell[8] === "O") {
+            textSize(20);
+            fill(255, 0, 0);
+            text("O Wins", 165, 40);
+            winner = "O";
+            oWins++;
+            win = true;
+        } else if (cell[0] === "O" && cell[3] === "O" && cell[6] === "O") {
+            textSize(20);
+            fill(255, 0, 0);
+            text("O Wins", 165, 40);
+            winner = "O";
+            oWins++;
+            win = true;
+        } else if (cell[1] === "O" && cell[4] === "O" && cell[7] === "O") {
+            textSize(20);
+            fill(255, 0, 0);
+            text("O Wins", 165, 40);
+            winner = "O";
+            oWins++;
+            win = true;
+        } else if (cell[2] === "O" && cell[4] === "O" && cell[6] === "O") {
+            textSize(20);
+            fill(255, 0, 0);
+            text("O Wins", 165, 40);
+            winner = "O";
+            oWins++;
+            win = true;
+        } else if (cell[2] === "O" && cell[5] === "O" && cell[8] === "O") {
+            textSize(20);
+            fill(255, 0, 0);
+            text("O Wins", 165, 40);
+            winner = "O";
+            oWins++;
+            win = true;
+        } else if (cell[3] === "O" && cell[4] === "O" && cell[5] === "O") {
+            textSize(20);
+            fill(255, 0, 0);
+            text("O Wins", 165, 40);
+            winner = "O";
+            oWins++;
+            win = true;
+        } else if (cell[6] === "O" && cell[7] === "O" && cell[8] === "O") {
+            textSize(20);
+            fill(255, 0, 0);
+            text("O Wins", 165, 40);
+            winner = "O";
+            oWins++;
+            win = true;
+        }
+    }
+};
+
+//check for reset function checks if reset button was selected
+var checkForReset = function() {
+    if (reset === true) {
+        numTurns = 0;
+        win = false;
+        turn = userSymbol;
+        for (var i = 0; i < 9; i++) {
+            cell[i] = "";
+            selected[i] = false;
+            symbolColor[i] = c;
+        }
+        reset = false;
+    }
+};
+
+//play function changes symbol for each turn in 2 player mode
+var play = function(index) {
+    if (selected[index] === false && win === false) {
+        if (turn === "X") {
+            cell[index] = "X";
+            selected[index] = true;
+            symbolColor[index] = color(255, 0, 0);
+            turn = "O"; 
+        } else if (turn === "O") {
+            cell[index] = "O";
+            selected[index] = true;
+            symbolColor[index] = color(0, 0, 255);
+            turn = "X";
+        }
+    drawGrid();
+    checkForReset();
+    checkForWin();
+    }
+};
+
+//play easy cpu function
+var playCpuEasy = function(index) {
+    checkForWin();
+    checkForReset();
+    if (selected[index] === false && win === false) {
+        numTurns++;
+        cell[index] = userSymbol;
+        selected[index] = true;
+        symbolColor[index] = userColor; 
+        checkForWin();
+        if (win === false && numTurns < 9) {
+            var cpuTurn = floor(random(0, 9));
+            if (selected[cpuTurn] === true) {
+                while (selected[cpuTurn] === true) {
+                    cpuTurn = floor(random(0, 9));
+                }
+            }
+            if (userSymbol === "X") {
+                cell[cpuTurn] = "O";
+                symbolColor[cpuTurn] = color(0, 0, 255);
+                numTurns++;
+                selected[cpuTurn] = true;
+            } else if (userSymbol === "O") {
+                cell[cpuTurn] = "X";
+                symbolColor[cpuTurn] = color(255, 0, 0);
+                numTurns++;
+                selected[cpuTurn] = true;
+            }
+        }
+    drawGrid();
+    checkForReset();
+    checkForWin();
+    }
+};
+
+//play hard cpu function
+var playCpuHard = function(index) {
+    if (selected[index] === false && win === false) {
+        numTurns++;
+        cell[index] = userSymbol;
+        selected[index] = true;
+        symbolColor[index] = userColor;
+        checkForWin();
+        var cpuTurn = "";
+        if (userSymbol === "X") {
+            cpuTurn = "O";
+            cpuColor = color(0, 0, 255);
+        } else if (userSymbol === "O") {
+            cpuTurn = "X";
+            cpuColor = color(255, 0, 0);
+        }
+        if (cell[0] === userSymbol && cell[3] === userSymbol && selected[6] === false) {
+            cell[6] = cpuTurn;
+            selected[6] = true;
+            symbolColor[6] = cpuColor;
+            numTurns++;
+        } else if (cell[1] === userSymbol && cell[4] === userSymbol && selected[7] === false) {
+            cell[7] = cpuTurn;
+            selected[7] = true;
+            symbolColor[7] = cpuColor;
+            numTurns++;
+        } else if (cell[2] === userSymbol && cell[5] === userSymbol && selected[8] === false) {
+            cell[8] = cpuTurn;
+            selected[8] = true;
+            symbolColor[8] = cpuColor;
+            numTurns++;
+        } else if (cell[3] === userSymbol && cell[6] === userSymbol && selected[0] === false) {
+            cell[0] = cpuTurn;
+            selected[0] = true;
+            symbolColor[0] = cpuColor;
+            numTurns++;
+        } else if (cell[4] === userSymbol && cell[7] === userSymbol && selected[1] === false) {
+            cell[1] = cpuTurn;
+            selected[1] = true;
+            symbolColor[1] = cpuColor;
+            numTurns++;
+        } else if (cell[5] === userSymbol && cell[8] === userSymbol && selected[2] === false) {
+            cell[2] = cpuTurn;
+            selected[2] = true;
+            symbolColor[2] = cpuColor;
+            numTurns++;
+        } else if (cell[0] === userSymbol && cell[1] === userSymbol && selected[2] === false) {
+            cell[2] = cpuTurn;
+            selected[2] = true;
+            symbolColor[2] = cpuColor;
+            numTurns++;
+        } else if (cell[3] === userSymbol && cell[4] === userSymbol && selected[5] === false) {
+            cell[5] = cpuTurn;
+            selected[5] = true;
+            symbolColor[5] = cpuColor;
+            numTurns++;
+        } else if (cell[6] === userSymbol && cell[7] === userSymbol && selected[8] === false) {
+            cell[8] = cpuTurn;
+            selected[8] = true;
+            symbolColor[8] = cpuColor;
+            numTurns++;
+        } else if (cell[1] === userSymbol && cell[2] === userSymbol && selected[0] === false) {
+            cell[0] = cpuTurn;
+            selected[0] = true;
+            symbolColor[0] = cpuColor;
+            numTurns++;
+        } else if (cell[4] === userSymbol && cell[5] === userSymbol && selected[3] === false) {
+            cell[3] = cpuTurn;
+            selected[3] = true;
+            symbolColor[3] = cpuColor;
+            numTurns++;
+        } else if (cell[7] === userSymbol && cell[8] === userSymbol && selected[6] === false) {
+            cell[6] = cpuTurn;
+            selected[6] = true;
+            symbolColor[6] = cpuColor;
+            numTurns++;
+        } else if (cell[0] === userSymbol && cell[4] === userSymbol && selected[8] === false) {
+            cell[8] = cpuTurn;
+            selected[8] = true;
+            symbolColor[8] = cpuColor;
+            numTurns++;
+        } else if (cell[2] === userSymbol && cell[4] === userSymbol && selected[6] === false) {
+                cell[6] = cpuTurn;
+                selected[6] = true;
+                symbolColor[6] = cpuColor;
+                numTurns++;
+        } else if (cell[4] === userSymbol && cell[8] === userSymbol && selected[0] === false) {
+                cell[0] = cpuTurn;
+                selected[0] = true;
+                symbolColor[0] = cpuColor;
+                numTurns++;
+        } else if (cell[4] === userSymbol && cell[6] === userSymbol && selected[2] === false) {
+                cell[2] = cpuTurn;
+                selected[2] = true;
+                symbolColor[2] = cpuColor;
+                numTurns++;
+        } else if (cell[0] === userSymbol && cell[2] === userSymbol && selected[1] === false) {
+                cell[1] = cpuTurn;
+                selected[1] = true;
+                symbolColor[1] = cpuColor;
+                numTurns++;
+        } else if (cell[6] === userSymbol && cell[8] === userSymbol && selected[7] === false) {
+                cell[7] = cpuTurn;
+                selected[7] = true;
+                symbolColor[7] = cpuColor;
+                numTurns++;
+        } else if (cell[0] === userSymbol && cell[6] === userSymbol && selected[3] === false) {
+                cell[3] = cpuTurn;
+                selected[3] = true;
+                symbolColor[3] = cpuColor;
+                numTurns++;
+        } else if (cell[2] === userSymbol && cell[8] === userSymbol && selected[5] === false) {
+                cell[5] = cpuTurn;
+                selected[5] = true;
+                symbolColor[5] = cpuColor;
+                numTurns++;
+        } else {
+            var cpuRandom = floor(random(0, 9));
+            if (win === false && numTurns < 9) {
+                if (selected[cpuRandom] === true) {
+                    while (selected[cpuRandom] === true) {
+                        cpuRandom = floor(random(0, 9));
+                    }
+                }
+                if (userSymbol === "X") {
+                    cell[cpuRandom] = "O";
+                    selected[cpuRandom] = true;
+                    symbolColor[cpuRandom] = cpuColor;
+                    numTurns++;
+                } else if (userSymbol === "O") {
+                    cell[cpuRandom] = "X";
+                    selected[cpuRandom] = true;
+                    symbolColor[cpuRandom] = cpuColor;
+                    numTurns++;
+                }
+            }
+        }
+    drawGrid();
+    checkForReset();
+    checkForWin();
+    }
+};
+
+//start scene
+var startScene = function() {
+    background(0, 17, 255);
+    drawBitmoji(200, 215, 100);
+    fill(255, 0, 0);
+    textSize(30);
+    text("TIC-TAC-TOE", 115, 115);
+    textSize(20);
+    fill(0, 0, 0);
+    text("Difficulty:", 5, 65);
+    text(mode, 5, 85);
+    text("Symbol:", 5, 105);
+    text(userSymbol, 5, 125);
+    playersBtn.draw();
+    cpuBtn.draw();
+    resetBtn.draw();
+    backBtn.draw();
+    xSelectBtn.draw();
+    oSelectBtn.draw();
+    easyBtn.draw();
+    hardBtn.draw();
+    lightBtn.draw();
+    darkBtn.draw();
+};
+
+//2 player game scene
+var gameScene = function() {
+    drawGrid();
+    drawBitmoji(22, 330, 35);
+    resetBtn.draw();
+    backBtn.draw();
+};
+
+//default scene is the start scene
+startScene();
+
+//mouse clicked function for buttons and the game itself
+mouseClicked = function() {
+    resetBtn.handleMouseClick();
+    backBtn.handleMouseClick();
+    playersBtn.handleMouseClick();
+    cpuBtn.handleMouseClick();
+    xSelectBtn.handleMouseClick();
+    oSelectBtn.handleMouseClick();
+    easyBtn.handleMouseClick();
+    hardBtn.handleMouseClick();
+    lightBtn.handleMouseClick();
+    darkBtn.handleMouseClick();
+    checkForReset();
+    checkForWin();
+    if (currentScene === 1) {
+        startScene();
+    }
+    if (currentScene === 2) {
+        gameScene();
+        if (mouseX > 50 && mouseX < 150 && mouseY > 50 &&mouseY < 150) {
+            play(0);
+        } else if (mouseX >= 150 && mouseX < 250 && mouseY > 50 && mouseY < 150) {
+            play(1);
+        } else if (mouseX >= 250 && mouseX < 350 && mouseY > 50 && mouseY < 150) {
+           play(2);
+        } else if (mouseX >= 50 && mouseX < 150 && mouseY > 150 && mouseY < 250) {
+           play(3);
+        } else if (mouseX >= 150 && mouseX < 250 && mouseY > 150 && mouseY < 250) {
+          play(4);
+        } else if (mouseX >= 250 && mouseX < 350 && mouseY > 150 && mouseY < 250) {
+            play(5);
+        } else if (mouseX >= 50 && mouseX < 150 && mouseY > 250 && mouseY < 350) {
+            play(6);
+        } else if (mouseX >= 150 && mouseX < 250 && mouseY > 250 && mouseY < 350) {
+            play(7);
+        } else if (mouseX >= 250 && mouseX < 350 && mouseY > 250 && mouseY < 350) {
+            play(8);
+        } 
+    } else if (currentScene === 3) {
+        gameScene();
+        if (mouseX > 50 && mouseX < 150 && mouseY > 50 &&mouseY < 150) {
+            playCpuEasy(0);
+        } else if (mouseX >= 150 && mouseX < 250 && mouseY > 50 && mouseY < 150) {
+            playCpuEasy(1);
+        } else if (mouseX >= 250 && mouseX < 350 && mouseY > 50 && mouseY < 150) {
+            playCpuEasy(2);
+        } else if (mouseX >= 50 && mouseX < 150 && mouseY > 150 && mouseY < 250) {
+            playCpuEasy(3);
+        } else if (mouseX >= 150 && mouseX < 250 && mouseY > 150 && mouseY < 250) {
+            playCpuEasy(4);
+        } else if (mouseX >= 250 && mouseX < 350 && mouseY > 150 && mouseY < 250) {
+            playCpuEasy(5);
+        } else if (mouseX >= 50 && mouseX < 150 && mouseY > 250 && mouseY < 350) {
+            playCpuEasy(6);
+        } else if (mouseX >= 150 && mouseX < 250 && mouseY > 250 && mouseY < 350) {
+            playCpuEasy(7);
+        } else if (mouseX >= 250 && mouseX < 350 && mouseY > 250 && mouseY < 350) {
+            playCpuEasy(8);
+        } 
+    } else if (currentScene === 4) {
+        gameScene();
+        if (mouseX > 50 && mouseX < 150 && mouseY > 50 &&mouseY < 150) {
+            playCpuHard(0);
+        } else if (mouseX >= 150 && mouseX < 250 && mouseY > 50 && mouseY < 150) {
+            playCpuHard(1);
+        } else if (mouseX >= 250 && mouseX < 350 && mouseY > 50 && mouseY < 150) {
+            playCpuHard(2);
+        } else if (mouseX >= 50 && mouseX < 150 && mouseY > 150 && mouseY < 250) {
+            playCpuHard(3);
+        } else if (mouseX >= 150 && mouseX < 250 && mouseY > 150 && mouseY < 250) {
+            playCpuHard(4);
+        } else if (mouseX >= 250 && mouseX < 350 && mouseY > 150 && mouseY < 250) {
+            playCpuHard(5);
+        } else if (mouseX >= 50 && mouseX < 150 && mouseY > 250 && mouseY < 350) {
+            playCpuHard(6);
+        } else if (mouseX >= 150 && mouseX < 250 && mouseY > 250 && mouseY < 350) {
+            playCpuHard(7);
+        } else if (mouseX >= 250 && mouseX < 350 && mouseY > 250 && mouseY < 350) {
+            playCpuHard(8);
+        } 
+    }
+};
